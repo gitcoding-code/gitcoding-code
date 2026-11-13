@@ -1,0 +1,43 @@
+
+// REFERENCED GLOBALS:
+/* global inGameMenu -- inGameMenu.js */
+/* global vcr -- vcr.js */
+/* global state, playState, newGameState, readyNewState, readyRestartState, finishState, deadState, overState -- states.js */
+
+const hud = (function(){
+
+    let on = false;
+
+    return {
+
+        update() {
+            const valid = this.isValidState();
+            if (valid != on) {
+                on = valid;
+                if (on) {
+                    inGameMenu.onHudEnable();
+                    vcr.onHudEnable();
+                }
+                else {
+                    inGameMenu.onHudDisable();
+                    vcr.onHudDisable();
+                }
+            }
+        },
+        draw(ctx) {
+            inGameMenu.draw(ctx);
+            vcr.draw(ctx);
+        },
+        isValidState() {
+            return (
+                state == playState ||
+                state == newGameState ||
+                state == readyNewState ||
+                state == readyRestartState ||
+                state == finishState ||
+                state == deadState ||
+                state == overState);
+        },
+    };
+
+})();

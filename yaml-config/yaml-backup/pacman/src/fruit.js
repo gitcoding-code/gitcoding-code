@@ -1,0 +1,347 @@
+
+// REFERENCED GLOBALS:
+/* global map -- maps.js */
+/* global tileSize, midTile -- Map.js */
+/* global pacman -- actors.js */
+/* global getRandomInt -- random.js */
+/* global addScore, gameMode, GAME_PACMAN, level -- game.js */
+
+//////////////////////////////////////////////////////////////////////////////////////
+// Fruit
+
+const bounceFrames = (() => {
+    const U = { dx:0, dy:-1 };
+    const D = { dx:0, dy:1 };
+    const L = { dx:-1, dy:0 };
+    const R = { dx:1, dy:0 };
+    const UL = { dx:-1, dy:-1 };
+    const UR = { dx:1, dy:-1 };
+    const DL = { dx:-1, dy:1 };
+    const DR = { dx:1, dy:1 };
+    const Z = { dx:0, dy:0 };
+
+    // A 16-frame animation for moving 8 pixels either up, down, left, or right.
+    return {
+        '^': [U, U, U, U, U, U, U, U, U, Z, U, Z, Z, D, Z, D],
+        '>': [Z, UR,Z, R, Z, UR,Z, R, Z, R, Z, R, Z, DR,DR,Z],
+        '<': [Z, Z, UL,Z, L, Z, UL,Z, L, Z, L, Z, L, Z, DL,DL],
+        'v': [Z, D, D, D, D, D, D, D, D, D, D, D, U, U, Z, U],
+    };
+})();
+
+class BaseFruit {
+    constructor() {
+        // pixel
+        this.pixel = {x:0, y:0};
+
+        this.fruitHistory = {};
+
+        this.scoreDuration = 2; // number of seconds that the fruit score is on the screen
+        this.scoreFramesLeft; // frames left until the picked-up fruit score is off the screen
+        this.savedScoreFramesLeft = {};
+    }
+    isScorePresent() {
+        return this.scoreFramesLeft > 0;
+    }
+    onNewLevel() {
+        this.buildFruitHistory();
+    }
+    setCurrentFruit(i) {
+        this.currentFruitIndex = i;
+    }
+    onDotEat() {
+        if (!this.isPresent() && (map.dotsEaten == this.dotLimit1 || map.dotsEaten == this.dotLimit2)) {
+            this.initiate();
+        }
+    }
+    save(t) {
+        this.savedScoreFramesLeft[t] = this.scoreFramesLeft;
+    }
+    load(t) {
+        this.scoreFramesLeft = this.savedScoreFramesLeft[t];
+    }
+    reset() {
+        this.scoreFramesLeft = 0;
+    }
+    getCurrentFruit() {
+        return this.fruits[this.currentFruitIndex];
+    }
+    getPoints() {
+        return this.getCurrentFruit().points;
+    }
+    update() {
+        if (this.scoreFramesLeft > 0)
+            this.scoreFramesLeft--;
+    }
+    isCollide() {
+        return Math.abs(pacman.pixel.y - this.pixel.y) <= midTile.y && Math.abs(pacman.pixel.x - this.pixel.x) <= midTile.x;
+    }
+    testCollide() {
+        if (this.isPresent() && this.isCollide()) {
+            addScore(this.getPoints());
+            this.reset();
+            this.scoreFramesLeft = this.scoreDuration*60;
+        }
+    }
+}
+
+// PAC-MAN FRUIT
+
+class PacFruit extends BaseFruit {
+    constructor() {
+        super();
+        this.fruits = [
+            {name:'cherry',     points:100},
+            {name:'strawberry', points:300},
+            {name:'orange',     points:500},
+            {name:'apple',      points:700},
+            {name:'melon',      points:1000},
+            {name:'galaxian',   points:2000},
+            {name:'bell',       points:3000},
+            {name:'key',        points:5000},
+        ];
+
+        this.order = [
+            0,  // level 1
+            1,  // level 2 
+            2,  // level 3
+            2,  // level 4
+            3,  // level 5
+            3,  // level 6
+            4,  // level 7
+            4,  // level 8
+            5,  // level 9
+            5,  // level 10
+            6,  // level 11
+            6,  // level 12
+            7]; // level 13+
+
+        this.dotLimit1 = 70;
+        this.dotLimit2 = 170;
+
+        this.duration = 9; // number of seconds that the fruit is on the screen
+        this.framesLeft; // frames left until fruit is off the screen
+
+        this.savedFramesLeft = {};
+    }
+
+    onNewLevel() {
+        this.setCurrentFruit(this.getFruitIndexFromLevel(level));
+        super.onNewLevel();
+    }
+
+    getFruitFromLevel(i) {
+        return this.fruits[this.getFruitIndexFromLevel(i)];
+    }
+
+    getFruitIndexFromLevel(i) {
+        if (i > 13) {
+            i = 13;
+        }
+        return this.order[i-1];
+    }
+
+    buildFruitHistory() {
+        this.fruitHistory = {};
+        for (let i=1; i<= level; i++) {
+            this.fruitHistory[i] = this.fruits[this.getFruitIndexFromLevel(i)];
+        }
+    }
+
+    initiate() {
+        const x = 13;
+        const y = 20;
+        this.pixel.x = tileSize*(1+x)-1;
+        this.pixel.y = tileSize*y + midTile.y;
+        this.framesLeft = 60*this.duration;
+    }
+
+    isPresent() {
+        return this.framesLeft > 0;
+    }
+
+    reset() {
+        super.reset();
+        this.framesLeft = 0;
+    }
+
+    update() {
+        super.update();
+
+        if (this.framesLeft > 0)
+            this.framesLeft--;
+    }
+
+    save(t) {
+        super.save(t);
+        this.savedFramesLeft[t] = this.framesLeft;
+    }
+    load(t) {
+        super.load(t);
+        this.framesLeft = this.savedFramesLeft[t];
+    }
+}
+
+// MS. PAC-MAN FRUIT
+
+const PATH_ENTER = 0;
+const PATH_PEN = 1;
+const PATH_EXIT = 2;
+
+class MsPacFruit extends BaseFruit {
+    constructor() {
+        super();
+        this.fruits = [
+            {name: 'cherry',     points: 100},
+            {name: 'strawberry', points: 200},
+            {name: 'orange',     points: 500},
+            {name: 'pretzel',    points: 700},
+            {name: 'apple',      points: 1000},
+            {name: 'pear',       points: 2000},
+            {name: 'banana',     points: 5000},
+        ];
+
+        this.dotLimit1 = 64;
+        this.dotLimit2 = 176;
+
+        this.pen_path = "<<<<<<^^^^^^>>>>>>>>>vvvvvv<<";
+
+        this.savedIsPresent = {};
+        this.savedPixel = {};
+        this.savedPathMode = {};
+        this.savedFrame = {};
+        this.savedNumFrames = {};
+        this.savedPath = {};
+    }
+
+    shouldRandomizeFruit() {
+        return level > 7;
+    }
+
+    getFruitFromLevel(i) {
+        if (i <= 7) {
+            return this.fruits[i-1];
+        }
+        else {
+            return undefined;
+        }
+    }
+
+    onNewLevel() {
+        if (!this.shouldRandomizeFruit()) {
+            this.setCurrentFruit(level-1);
+        }
+        else {
+            this.setCurrentFruit(0);
+        }
+        super.onNewLevel();
+    }
+
+    buildFruitHistory() {
+        this.fruitHistory = {};
+        for (let i=1; i<= Math.max(level,7); i++) {
+            this.fruitHistory[i] = this.fruits[i-1];
+        }
+    }
+
+    reset() {
+        super.reset();
+
+        this.frame = 0;
+        this.numFrames = 0;
+        this.path = undefined;
+    }
+
+    initiatePath(p) {
+        this.frame = 0;
+        this.numFrames = p.length*16;
+        this.path = p;
+    }
+
+    initiate() {
+        if (this.shouldRandomizeFruit()) {
+            this.setCurrentFruit(getRandomInt(0,6));
+        }
+        const {entrances} = map.fruitPaths;
+        const e = entrances[getRandomInt(0,entrances.length-1)];
+        this.initiatePath(e.path);
+        this.pathMode = PATH_ENTER;
+        this.pixel.x = e.start.x;
+        this.pixel.y = e.start.y;
+    }
+
+    isPresent() {
+        return this.frame < this.numFrames;
+    }
+
+    move() {
+        const p = this.path[Math.floor(this.frame/16)]; // get current path frame
+        const b = bounceFrames[p][this.frame%16]; // get current bounce animation frame
+        this.pixel.x += b.dx;
+        this.pixel.y += b.dy;
+        this.frame++;
+    }
+
+    setNextPath() {
+        if (this.pathMode == PATH_ENTER) {
+            this.pathMode = PATH_PEN;
+            this.initiatePath(this.pen_path);
+        }
+        else if (this.pathMode == PATH_PEN) {
+            this.pathMode = PATH_EXIT;
+            const {exits} = map.fruitPaths;
+            const e = exits[getRandomInt(0,exits.length-1)];
+            this.initiatePath(e.path);
+        }
+        else if (this.pathMode == PATH_EXIT) {
+            this.reset();
+        }
+    }
+
+    update() {
+        super.update();
+
+        if (this.isPresent()) {
+            this.move();
+            if (this.frame == this.numFrames) {
+                this.setNextPath();
+            }
+        }
+    }
+
+    save(t) {
+        super.save(t);
+
+        this.savedPixel[t] =        this.isPresent() ? {x:this.pixel.x, y:this.pixel.y} : undefined;
+        this.savedPathMode[t] =     this.pathMode;
+        this.savedFrame[t] =        this.frame;
+        this.savedNumFrames[t] =    this.numFrames;
+        this.savedPath[t] =         this.path;
+    }
+
+    load(t) {
+        super.load(t);
+
+        if (this.savedPixel[t]) {
+            this.pixel.x =      this.savedPixel[t].x;
+            this.pixel.y =      this.savedPixel[t].y;
+        }
+        this.pathMode =     this.savedPathMode[t];
+        this.frame =        this.savedFrame[t];
+        this.numFrames =    this.savedNumFrames[t]; 
+        this.path =         this.savedPath[t];
+    }
+}
+
+let fruit;
+const pacfruit = new PacFruit();
+const mspacfruit = new MsPacFruit();
+
+const setFruitFromGameMode = function() {
+    if (gameMode == GAME_PACMAN) {
+        fruit = pacfruit;
+    }
+    else {
+        fruit = mspacfruit;
+    }
+};

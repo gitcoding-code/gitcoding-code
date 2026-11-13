@@ -1,0 +1,157 @@
+Just reorganizing what I found from notes-vecoven.asm
+
+## Effects
+
+8 bytes per effect
+
+### Channel 1
+
+```
+PAC
+    1. 3b30  73 20 00 0c 00 0a 1f 00  ; extra life sound
+    2. 3b38  72 20 fb 87 00 02 0f 00  ; credit sound
+MSPAC
+    (same)
+```
+
+### Channel 2
+
+```
+PAC
+    1. 3b40  36 20 04 8c 00 00 06 00  ; end of energizer
+    2. 3b48  36 28 05 8b 00 00 06 00  ; higher frequency when 155 dots eaten
+    3. 3b50  36 30 06 8a 00 00 06 00  ; higher frequency when 179 dots eaten
+    4. 3b58  36 3c 07 89 00 00 06 00  ; higher frequency when 12 dots left
+    5. 3b60  36 48 08 88 00 00 06 00  ; reset higher frequency when 12 or less dots left
+    6. 3b68  24 00 06 08 00 00 0a 00  ; engergizer eaten
+    7. 3b70  40 70 fa 10 00 00 0a 00  ; eyes returning sound
+    8. 3b78  70 04 00 00 00 00 08 00  ; unused ???
+MSPAC
+    1. 3b40  59 01 06 08 00 00 02 00  ; end of energizer
+    2. 3b48  59 01 06 09 00 00 02 00  ; higher frequency when 155 dots eaten
+    3. 3b50  59 02 06 0a 00 00 02 00  ; higher frequency when 179 dots eaten
+    4. 3b58  59 03 06 0b 00 00 02 00  ; higher frequency when 12 dots left
+    5. 3b60  59 04 06 0c 00 06 02 00  ; reset higher frequency when 12 or less dots left
+    6. 3b68  24 00 06 08 02 00 0a 00  ; engergizer eaten
+    7. 3b70  36 07 87 6f 00 00 04 00  ; eyes returning sound
+    8. 3b78  70 04 00 00 00 00 08 00  ; unused ???
+```
+
+### Channel 3
+
+```
+PAC
+    1. 3b80  42 18 fd 06 00 01 0c 00  ; dot eating sound 1
+    2. 3b88  42 04 03 06 00 01 0c 00  ; dot eating sound 2
+    3. 3b90  56 0c ff 8c 00 02 0f 00  ; fruit eating sound
+    4. 3b98  05 00 02 20 00 01 0c 00  ; blue ghost eaten sound
+    5. 3ba0  41 20 ff 86 fe 1c 0f ff  ; ghosts bumping during act 1 sound
+    6. 3ba8  70 00 01 0c 00 01 08 00  ; fruit bouncing sound
+MSPAC
+    1. 3b80  1c 70 8b 08 00 01 06 00  ; dot eating sound 1
+    2. 3b88  1c 70 8b 08 00 01 06 00  ; dot eating sound 2
+    3. 3b90  56 0c ff 8c 00 02 08 00  ; fruit eating sound
+    4. 3b98  56 00 02 0a 07 03 0c 00  ; blue ghost eaten sound
+    5. 3ba0  36 38 fe 12 f8 04 0f fc  ; ghosts bumping during act 1 sound
+    6. 3ba8  22 01 01 06 00 01 07 00  ; fruit bouncing sound
+```
+
+## Songs
+
+### MSPACMAN
+
+SONG_TABLE_1    EQU     9685    ; channel 1 song table
+    9685  b6 96				; #96b6	; startup song
+      96b6  f1 02 f2 03 f3 0a f4 02  50 70 86 90 81 90 86 90
+      96c6  68 6a 6b 68 6a 68 66 6a  68 66 65 68 86 81 86 ff
+
+    9687  19 97				; #9719	; act 1 song
+      9719  f1 03 f2 03 f3 0a f4 02  70 66 70 46 50 86 90 70
+      9729  66 70 46 50 86 90 70 66  70 46 50 86 90 70 61 70
+      9739  41 50 81 90 f4 00 a6 a4  a2 a1 f4 01 86 89 8b 81
+      9749  74 71 6b 69 a6 ff
+
+    9689  d4 3b				; #3bd4	; act 2 song
+      3bd4  f1 03 f2 03 f3 0a f4 02  90 7c 7b 7a 79 79 78 97
+      3be4  76 75 74 73 73 72 91 a8  88 60 4a 4c 91 95 88 95
+      3bf4  91 95 88 95 91 95 88 95  95 98 94 97 93 96 88 96
+      3c04  93 96 88 96 93 96 88 96  b6 b3 75 76 77 78 78 75
+      3c14  73 68 91 95 88 95 91 95  88 95 86 96 95 92 93 8c
+      3c24  8a 88 86 90 90 96 95 90  90 86 90 96 90 96 91 88
+      3c34  81 ff
+
+    968b  72 97				; #9772	; act 3 song
+      9772  f1 02 f2 03 f3 0a f4 02  65 90 68 70 68 67 66 65
+      9782  90 61 70 61 65 68 66 90  63 90 86 90 85 90 85 70
+      9792  86 68 65 ff
+      9796  ff
+
+
+SONG_TABLE_2    EQU     967d    ; channel 2 song table
+    967d  95 96				; #9695	; startup song
+      9695  f1 00 f2 02 f3 0a f4 00  41 43 45 86 8a 88 8b 6a
+      96a5  6b 71 6a 88 8b 6a 6b 71  6a 6b 71 73 75 96 95 96
+      96b5  ff
+
+    967f  d6 96				; #96d6	; act 1 song
+      96d6  f1 00 f2 02 f3 0a f4 00  69 6b 69 86 61 64 65 86
+      96e6  86 64 66 64 61 69 6b 69  86 61 64 64 a1 70 71 74
+      96f6  75 35 76 30 50 35 76 30  50 54 56 54 51 6b 69 6b
+      9706  69 6b 91 6b 69 66 f2 01  74 76 74 71 74 71 6b 69
+      9716  a6 a6 ff
+
+    9681  58 3c				; #3c58	; act 2 song
+      3c58  f1 00 f2 02 f3 0a f4 00  88 6c 71 72 73 73 71 93
+      3c68  6c 73 75 76 76 75 96 7c  7a 78 76 75 96 6c 91 a0
+      3c78  88 75 76 77 78 71 73 74  75 71 75 71 68 68 65 66
+      3d78  67 a8 ab ac 8c 86 76 75  6c 71 75 73 6b 6c 73 76
+      3d88  7a 78 78 76 73 6c aa a8  71 73 74 75 6a 6b 6c 73
+      3d98  75 76 77 78 71 73 74 75  71 75 71 68 48 40 68 67
+      3da8  68 aa a9 aa 6a 60 8a 76  75 73 71 71 73 95 75 73
+      3db8  71 68 68 61 63 6a a8 6c  76 6a 6c 91 90 91 ff
+
+    9683  4f 97				; #974f	; act 3 song
+      974f  f1 00 f2 02 f3 0a f4 00  65 64 65 88 67 88 61 63
+      975f  64 85 64 85 6a 69 6a 8c  75 93 90 91 90 91 70 8a
+      976f  68 71 ff
+
+SONG_TABLE_3    EQU     968d    ; channel 3 song table
+    968d  96 97 96 97 96 97 96 97
+
+### PACMAN
+
+SONG_TABLE_1    EQU     3bc8    ; channel 1 song table
+    3bc8  d4 3b ; #3bd4 ; startup song
+	3bd4  f1 02 f2 03 f3 0f f4 01  82 70 69 82 70 69 83 70
+	3be4  6a 83 70 6a 82 70 69 82  70 69 89 8b 8d 8e ff
+
+    3bca  f3 3b ; #3bf3 ; cutscene song
+	3bf3  f1 02 f2 03 f3 0f f4 01  67 50 30 47 30 67 50 30
+	3c03  47 30 67 50 30 47 30 4b  10 4c 10 4d 10 4e 10 67
+	3c13  50 30 47 30 67 50 30 47  30 67 50 30 47 30 4b 10
+	3c23  4c 10 4d 10 4e 10 67 50  30 47 30 67 50 30 47 30
+	3c33  67 50 30 47 30 4b 10 4c  10 4d 10 4e 10 77 20 4e
+	3c43  10 4d 10 4c 10 4a 10 47  10 46 10 65 30 66 30 67
+	3c53  40 70 f0 fb 3b
+
+
+SONG_TABLE_2    EQU     3bcc    ; channel 2 song table
+    3bcc  58 3c ; #3c58 ; startup song
+	3c58  f1 00 f2 02 f3 0f f4 00  42 50 4e 50 49 50 46 50
+	3c68  4e 49 70 66 70 43 50 4f  50 4a 50 47 50 4f 4a 70
+	3c78  67 70 42 50 4e 50 49 50  46 50 4e 49 70 66 70 45
+	3c88  46 47 50 47 48 49 50 49  4a 4b 50 6e ff
+
+    3bce  95 3c ; #3c95 ; cutscene song
+	3c95  f1 01 f2 01 f3 0f f4 00  26 67 26 67 26 67 23 44
+	3ca4  42 47 30 67 2a 8b 70 26  67 26 67 26 67 23 44 42
+	3cb4  47 30 67 23 84 70 26 67  26 67 26 67 23 44 42 47
+	3cc4  30 67 29 6a 2b 6c 30 2c  6d 40 2b 6c 29 6a 67 20
+	3cd4  29 6a 40 26 87 70 f0 9d  3c
+	3cdd  00 00 00
+
+SONG_TABLE_3    EQU     3bd0
+    3bd0  de 3c ; #3cde
+
+    3bd2  df 3c ; #3cdf
+
