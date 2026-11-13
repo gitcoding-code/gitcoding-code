@@ -1,0 +1,109 @@
+@import url("https://fonts.googleapis.com/css?family=Press+Start+2P");
+
+body {
+  margin: 0;
+  font-family: "Press Start 2P", cursive;
+  font-size: 2em;
+  color: white;
+}
+button {
+  outline: none;
+  cursor: pointer;
+  border: none;
+  box-shadow: 3px 5px 0px 0px rgba(0, 0, 0, 0.75);
+}
+#counter {
+position: absolute;
+top: 20px;
+right: 20px;
+}
+
+/* ====== DEATH SCREEN OVERLAY ====== */
+#end {
+position: absolute;
+inset: 0; /* replaces min-width/min-height for full cover */
+display: flex;
+align-items: center;
+justify-content: center;
+visibility: hidden;
+
+/* darkened backdrop that locks interaction */
+background: rgba(0, 0, 0, 0.55);
+backdrop-filter: blur(4px);
+-webkit-backdrop-filter: blur(4px);
+z-index: 9999;
+}
+
+#end button {
+font-family: inherit;
+font-size: inherit;
+padding: 22px 60px;
+border: none;
+border-radius: 16px;
+color: #fff;
+cursor: pointer;
+
+/* modern gradient red instead of flat #ff0000 */
+background: linear-gradient(180deg, #ff5757 0%, #e01818 55%, #b00d0d 100%);
+box-shadow:
+0 6px 0 #800808,               /* fake 3D "lip" */
+0 8px 24px rgba(0, 0, 0, 0.45),
+inset 0 2px 0 rgba(255, 255, 255, 0.25);
+
+transition:
+transform 120ms ease,
+box-shadow 120ms ease;
+}
+
+/* hover lift */
+#end button:hover {
+transform: translateY(-2px);
+box-shadow:
+0 8px 0 #800808,
+0 12px 28px rgba(0, 0, 0, 0.5),
+inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* pressed — squish + bounce */
+#end button:active {
+transform: translateY(6px);
+box-shadow:
+0 0 0 #800808,
+0 2px 10px rgba(0, 0, 0, 0.4),
+inset 0 2px 0 rgba(255, 255, 255, 0.15);
+
+animation: bounce-tap 320ms ease;
+}
+
+@keyframes bounce-tap {
+  0%   { transform: translateY(6px) scale(0.92); }
+  40%  { transform: translateY(-8px) scale(1.06); }
+  70%  { transform: translateY(2px) scale(0.98); }
+  100% { transform: translateY(0) scale(1); }
+}
+/* ================================ */
+
+#controlls {
+position: absolute;
+min-width: 100%;
+min-height: 100%;
+display: flex;
+align-items: flex-end;
+justify-content: center;
+}
+#controlls div {
+display: grid;
+grid-template-columns: 50px 50px 50px;
+grid-template-rows: auto auto;
+grid-column-gap: 10px;
+grid-row-gap: 10px;
+margin-bottom: 20px;
+}
+#controlls button {
+width: 100%;
+background-color: white;
+border: 1px solid lightgray;
+}
+#controlls button:first-of-type {
+grid-column: 1/-1;
+}

@@ -1,0 +1,3 @@
+Delta E      Sized down     End effect
+--------  = ------------ = ------------  = Something J/S
+Delta T      Sized down     End effect
