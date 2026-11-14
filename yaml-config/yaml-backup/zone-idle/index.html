@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover, shrink-to-fit=no" />
+  <title>Zone Idle - Terminal Link</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      /* Standard base size for all devices to ensure layout breaks correctly on mobile */
+      font-size: 16px;
+    }
+
+    html {
+      /* Prevent browser auto-adjustments that break layout consistency */
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+           text-size-adjust: 100%;
+    }
+
+    body {
+      background-color: #09090b;
+      /* zinc-950 */
+      color: #4ade80;
+      /* green-400 */
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+      touch-action: manipulation;
+      /* Improves touch response */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+      /* Horizontal scrollbar size */
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #052e16;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #15803d;
+      border: 1px solid #052e16;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #22c55e;
+    }
+
+
+    .crt-flicker {
+      animation: flicker 0.15s infinite;
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 185, 129, 0.02);
+      z-index: 49;
+      /* Force GPU layer */
+      transform: translateZ(0);
+      will-change: opacity;
+    }
+
+    /* GPU Optimized Scan Animation */
+    .scan-bar-anim {
+      animation: scan 8s linear infinite;
+      will-change: transform;
+    }
+
+    @keyframes scan {
+      0% {
+        transform: translateY(-10vh);
+        opacity: 0;
+      }
+
+      5% {
+        opacity: 1;
+      }
+
+      95% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(110vh);
+        opacity: 0;
+      }
+    }
+
+    @keyframes flicker {
+      0% {
+        opacity: 0.9;
+      }
+
+      50% {
+        opacity: 1.0;
+      }
+
+      100% {
+        opacity: 0.9;
+      }
+    }
+
+    .terminal-text-shadow {
+      text-shadow: 0 0 5px rgba(74, 222, 128, 0.5);
+    }
+
+    /* Loot Notification Pop */
+    @keyframes lootFloat {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+      }
+
+      10% {
+        transform: translate(-50%, -80%) scale(1.1);
+        opacity: 1;
+      }
+
+      20% {
+        transform: translate(-50%, -90%) scale(1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-50%, -200%) scale(1);
+        opacity: 0;
+      }
+    }
+
+    .loot-pop {
+      animation: lootFloat 2.5s ease-out forwards;
+      will-change: transform, opacity;
+    }
+
+    /* Damage Notification Pop */
+    @keyframes damagePop {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+      }
+
+      15% {
+        transform: translate(-50%, -120%) scale(1.8);
+        opacity: 1;
+      }
+
+      /* Big pop */
+      30% {
+        transform: translate(-50%, -100%) scale(1.0);
+      }
+
+      /* Settle */
+      100% {
+        transform: translate(-50%, 0%) scale(0.8);
+        opacity: 0;
+      }
+
+      /* Fall down */
+    }
+
+    .damage-pop {
+      animation: damagePop 1.5s ease-out forwards;
+      will-change: transform, opacity;
+    }
+  </style>
+  <script>
+    // DPI Scaling Compensation: counteract OS-level zoom (e.g. 125%) so layout fits viewport
+    (function() {
+      function applyDpiScale() {
+        var dpr = window.devicePixelRatio || 1;
+        document.documentElement.style.setProperty('--dpi-scale', dpr > 1 ? (1 / dpr).toFixed(4) : '1');
+      }
+      applyDpiScale();
+      // Re-apply when DPI changes (e.g. dragging window between monitors)
+      window.matchMedia('(resolution: ' + window.devicePixelRatio + 'dppx)')
+        .addEventListener('change', applyDpiScale);
+    })();
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
+        "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.2",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+        "react/": "https://aistudiocdn.com/react@^19.2.1/",
+        "react": "https://aistudiocdn.com/react@^19.2.1",
+        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.1",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+        "vite": "https://aistudiocdn.com/vite@^7.2.7",
+        "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.87.0",
+        "path": "https://aistudiocdn.com/path@^0.12.7"
+      }
+    }
+    </script>
+  <script type="module" crossorigin src="./assets/index-BlSyTTMW.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Bwi7Zy5F.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <div class="crt-flicker"></div>
+</body>
+
+</html>
